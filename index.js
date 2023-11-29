@@ -2,9 +2,12 @@ require("dotenv").config();
 const axios = require("axios");
 const cheerio = require("cheerio");
 const IngredientsList = require("./models/ingredientsListModel");
+const AdditivesList = require("./models/additivesListModel");
 const mongoose = require("mongoose");
 
 const passwordMONGO = process.env.MONGODB_PASSWORD;
+const SCRAPE_URL_INGREDIENTS = process.env.SCRAPE_URL;
+const SCRAPE_URL_ADDITIVES = process.env.SCRAPE_URL_ADDITIVES;
 
 mongoose
   .connect(
@@ -17,12 +20,11 @@ mongoose
 const veganIngredients = [];
 const nonVeganIngredients = [];
 const bothIngredients = [];
+const additives = [];
 
 async function scrapeIngredients() {
   try {
-    const response = await axios.get(
-      "https://www.veganpeace.com/ingredients/ingredients.htm"
-    );
+    const response = await axios.get(SCRAPE_URL_INGREDIENTS);
     const html = response.data;
     const $ = cheerio.load(html);
 
@@ -83,6 +85,47 @@ async function scrapeAndSaveIngredients() {
   mongoose.disconnect().then(() => console.log("MongoDB disconnected"));
 }
 
-scrapeAndSaveIngredients();
+async function scrapeAdditives() {
+  try {
+    const response = await axios.get(SCRAPE_URL_ADDITIVES);
+    const html = response.data;
+    const $ = cheerio.load(html);
 
-module.exports = scrapeIngredients;
+    //   Iterate through all the <td> tags
+    $("td a").each((i, element) => {
+      const additiveText = $(element).text().trim();
+      const parts = additiveText.split(/\s+(.+)/);
+
+      if (parts.length >= 2) {
+        const additive = {
+          number: parts[0].trim(),
+          name: parts[1].trim().replace("-", ""),
+        };
+        additives.push(additive);
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function saveAdditives(additives) {
+  try {
+    await AdditivesList.insertMany(additives);
+    console.log("Additives save to MongoDB");
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function scrapeAndSaveAdditives() {
+  await scrapeAdditives();
+
+  await saveAdditives(additives);
+  mongoose.disconnect().then(() => console.log("MongoDB disconnected"));
+}
+
+scrapeAndSaveIngredients();
+scrapeAndSaveAdditives();
+
+// module.exports = scrapeIngredients;
