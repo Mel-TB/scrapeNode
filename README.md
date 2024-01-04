@@ -36,7 +36,7 @@ This project is a Node.js application designed to scrape information about vario
 
 ###  Features
 
-- **Web Scraping for Ingredientss**: Automates the process of extracting information about various ingredients from the provided URL.
+- **Web Scraping for Ingredients**: Automates the process of extracting information about various ingredients from the provided URL.
 - **Classification and Categorization**: Classifies ingredients into three distinct categories based on their characteristics extracted during scraping.
 - **Data Storage in MongoDB**: Utilizes Mongoose, a MongoDB object modeling tool, to store and manage the scraped data efficiently in a MongoDB database.
 - **Scraping of Food Additives Information**: Extends the scraping capability to include food additives, capturing essential details like additive number and name.
@@ -66,7 +66,7 @@ Set up your environment variables in a **.env** file at the root of the project:
 ```sh
 MONGODB_PASSWORD=your_mongodb_password
 SCRAPE_URL=your_scrape_url_for_ingredients
-SCRAP_URL_ADDITIVES=your_scrape_url_for_additives
+SCRAPE_URL_ADDITIVES=your_scrape_url_for_additives
 ```
 
 ## Usage
